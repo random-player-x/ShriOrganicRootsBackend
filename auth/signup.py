@@ -88,7 +88,6 @@ def signup(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse('Password does not meet the strength requirements.', status_code=400)
 
     try:
-        # Check if user already exists using parameterized query
         # Check if user with this email or username already exists
         user_exists = users_collection.find_one({'$or': [{'email': email}, {'username': username}]})
         if user_exists:
@@ -98,7 +97,6 @@ def signup(req: func.HttpRequest) -> func.HttpResponse:
             if user_exists['username'] == username:
                 return func.HttpResponse('User with this username already exists.', status_code=400)
 
-
         # Hash the password and insert the new user
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         user_data = {
@@ -106,7 +104,7 @@ def signup(req: func.HttpRequest) -> func.HttpResponse:
             'username': username,
             'password': hashed_password.decode('utf-8'),
             'isEmailVerified': False,  # Default to false
-            'isAdmin': False,
+            'isAdmin': False,  # Default to false
         }
         result = users_collection.insert_one(user_data)
         inserted_id = str(result.inserted_id)
@@ -121,13 +119,10 @@ def signup(req: func.HttpRequest) -> func.HttpResponse:
                 'id': inserted_id,
                 'username': username,
                 'email': email,
-                'isEmailVerified': False
+                'isEmailVerified': False,
+                'isAdmin': user_data.get('isAdmin', False)  # Default to false if not set
             }
         }
-
-        # Add isAdmin field only if the user is an admin
-        if user_data['isAdmin']:
-            response_data['user']['isAdmin'] = True
      
         return func.HttpResponse(json.dumps(response_data), mimetype="application/json", status_code=200)
     

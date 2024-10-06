@@ -64,16 +64,14 @@ def login(req: func.HttpRequest) -> func.HttpResponse:
         }, JWT_SECRET, algorithm='HS512')
 
         # Prepare the user response data
+        # Include isAdmin in the response, defaulting to False if it doesn't exist in the document
         user_data = {
             'id': str(user['_id']),
             'username': user['username'],
             'email': user['email'],
-            'isEmailVerified': user['isEmailVerified']
+            'isEmailVerified': user['isEmailVerified'],
+            'isAdmin': user.get('isAdmin', False)  # Set default to False
         }
-        
-        # Add isAdmin field only if the user is an admin
-        if user.get('isAdmin'):
-            user_data['isAdmin'] = True
 
         # Return the token and user information
         response_data = {
