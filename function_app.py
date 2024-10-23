@@ -6,6 +6,9 @@ from Routes.AdminRoutes.get_users import get_users_bp
 from Routes.AdminRoutes.get_orders import get_orders_bp
 from Routes.AdminRoutes.change_order_status import change_order_status_bp
 from Routes.UserRoutes.MyOrders import get_myorder_bp
+from Routes.AdminRoutes.create_product import create_product_bp
+from Routes.AdminRoutes.delete_product import delete_product_bp
+from auth.google_login import google_login_bp
 
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
@@ -18,4 +21,9 @@ app.register_functions(get_users_bp)
 app.register_functions(get_orders_bp)
 app.register_functions(change_order_status_bp)
 app.register_functions(get_myorder_bp)
+app.register_functions(create_product_bp)
+app.register_functions(delete_product_bp)
+app.register_functions(google_login_bp)
+
+
 

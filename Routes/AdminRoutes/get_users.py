@@ -14,7 +14,6 @@ get_users_bp = func.Blueprint()
 MONGO_URI = os.environ.get('MONGO_URI')
 JWT_SECRET = os.environ.get('JWT_SECRET')
 
-
 if not MONGO_URI or not JWT_SECRET:
     raise ValueError("MONGO_URI and JWT_SECRET must be set in environment variables.")
 
@@ -40,6 +39,16 @@ def authenticate_admin_token(token):
     except jwt.InvalidTokenError:
         return None
 
+# Helper function to serialize MongoDB documents (convert ObjectId, datetime)
+def serialize_user(user):
+    if '_id' in user:
+        user['_id'] = str(user['_id'])  # Convert ObjectId to string
+    if 'createdAt' in user and isinstance(user['createdAt'], datetime):
+        user['createdAt'] = user['createdAt'].isoformat()  # Convert datetime to ISO 8601 string
+    if 'updatedAt' in user and isinstance(user['updatedAt'], datetime):
+        user['updatedAt'] = user['updatedAt'].isoformat()  # Convert datetime to ISO 8601 string
+    return user
+
 @get_users_bp.route(route="all-users", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
 def admin_users_get(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Admin request to get all users.')
@@ -57,13 +66,16 @@ def admin_users_get(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse('Unauthorized or not an admin.', status_code=403)
 
     try:
-        # Get list of all users
+        # Get list of all users, excluding the password field
         users = users_collection.find({}, {'password': 0})  # Exclude password field
         users_list = []
-        for user in users:
-            user['_id'] = str(user['_id'])  # Convert ObjectId to string
-            users_list.append(user)
 
+        # Serialize each user
+        for user in users:
+            serialized_user = serialize_user(user)
+            users_list.append(serialized_user)
+
+        # Return the serialized list of users as JSON
         return func.HttpResponse(json.dumps(users_list), mimetype="application/json", status_code=200)
 
     except Exception as e:

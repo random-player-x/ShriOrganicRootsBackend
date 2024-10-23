@@ -9,3 +9,4 @@ certifi
 pyjwt
 email_validator
 python-dotenv
+requests
