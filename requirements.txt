@@ -10,3 +10,4 @@ pyjwt
 email_validator
 python-dotenv
 requests
+dwolla-v2

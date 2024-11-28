@@ -64,12 +64,12 @@ def admin_update_order_status(req: func.HttpRequest) -> func.HttpResponse:
 
         # Parse request body
         req_body = req.get_json()
-        user_id = req_body.get('userId', '').strip()
+        _id = req_body.get('_id', '').strip()
         product_id = req_body.get('productId')
         new_status = req_body.get('status', '').strip().lower()
 
         # Input validation
-        if not user_id or product_id is None or not new_status:
+        if not _id or product_id is None or not new_status:
             return func.HttpResponse('Please provide userId, productId, and status.', status_code=400)
 
         # Ensure productId is an integer
@@ -85,13 +85,13 @@ def admin_update_order_status(req: func.HttpRequest) -> func.HttpResponse:
 
         # Validate and convert userId to ObjectId
         try:
-            user_object_id = ObjectId(user_id)
+            product_object_id = ObjectId(_id)
         except Exception:
             return func.HttpResponse('Invalid userId format.', status_code=400)
 
         # Directly update the status of the specific product in the order
         result = orders_collection.update_one(
-            {'userId': user_object_id, 'orderItems.productId': product_id},
+            {'_id': product_object_id, 'orderItems.productId': product_id},
             {'$set': {'orderItems.$.status': new_status}}
         )
 

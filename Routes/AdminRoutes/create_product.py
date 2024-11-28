@@ -83,7 +83,7 @@ def create_product(req: func.HttpRequest) -> func.HttpResponse:
             "productName", "category", "brand", "unitPrice",
             "bulkPrice", "totalCost", "availableQty",
             "minOrderQty", "warehousePincode", 
-            "rating", "numReviews"
+            "rating", "numReviews", 'imageUrl'
         ]
         for field in required_fields:
             if field not in req_body:
@@ -110,6 +110,7 @@ def create_product(req: func.HttpRequest) -> func.HttpResponse:
             "warehousePincode": req_body["warehousePincode"],
             "rating": float(req_body["rating"]),
             "numReviews": int(req_body["numReviews"]),
+            "imageUrl": req_body["imageUrl"],
             "createdAt": datetime.now(timezone.utc),
             "createdBy": admin_user["email"]  # Track the admin who created the product
         }
@@ -133,6 +134,7 @@ def create_product(req: func.HttpRequest) -> func.HttpResponse:
                 "warehousePincode": new_product["warehousePincode"],
                 "rating": new_product["rating"],
                 "numReviews": new_product["numReviews"],
+                "imageUrl": new_product["imageUrl"],
                 "createdAt": new_product["createdAt"].isoformat(),
                 "createdBy": new_product["createdBy"]  # Admin email
             }
