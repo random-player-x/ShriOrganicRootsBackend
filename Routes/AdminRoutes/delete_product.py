@@ -84,19 +84,8 @@ def delete_product(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=400,
                 mimetype="application/json"
             )
-
-        try:
-            # Convert productId to ObjectId
-            product_object_id = ObjectId(product_id)
-        except Exception:
-            return func.HttpResponse(
-                json.dumps({"message": "Invalid productId format."}),
-                status_code=400,
-                mimetype="application/json"
-            )
-
         # Check if the product exists
-        product = products_collection.find_one({'_id': product_object_id})
+        product = products_collection.find_one({'productId': product_id})
         if not product:
             return func.HttpResponse(
                 json.dumps({"message": "Product not found."}),
@@ -105,7 +94,7 @@ def delete_product(req: func.HttpRequest) -> func.HttpResponse:
             )
 
         # Delete the product
-        products_collection.delete_one({'_id': product_object_id})
+        products_collection.delete_one({'productId': product_id})
 
         # Return a success response
         return func.HttpResponse(
